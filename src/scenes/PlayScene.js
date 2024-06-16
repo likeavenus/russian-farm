@@ -96,55 +96,55 @@ class PlayScene extends Phaser.Scene {
 
     // Buttons
     // TODO: вынести кнопки в контейнер и сделать по аналогии с gameOverContainer
-    this.buttonBoosts = this.add.image(0, 0, "boosts").setInteractive();
-    this.buttonProfile = this.add.image(0, 0, "profile").setInteractive();
-    this.buttonQuests = this.add.image(0, 0, "quests").setInteractive();
+    // this.buttonBoosts = this.add.image(0, 0, "boosts").setInteractive();
+    // this.buttonProfile = this.add.image(0, 0, "profile").setInteractive();
+    // this.buttonQuests = this.add.image(0, 0, "quests").setInteractive();
 
-    this.buttonBoosts.setDisplaySize(this.buttonWidth, this.buttonHeight);
-    this.buttonQuests.setDisplaySize(this.buttonWidth, this.buttonHeight);
-    this.buttonProfile.setDisplaySize(this.buttonWidth, this.buttonHeight);
+    // this.buttonBoosts.setDisplaySize(this.buttonWidth, this.buttonHeight);
+    // this.buttonQuests.setDisplaySize(this.buttonWidth, this.buttonHeight);
+    // this.buttonProfile.setDisplaySize(this.buttonWidth, this.buttonHeight);
 
-    this.buttonsTotalWidth =
-      (this.buttonWidth + this.buttonSpacing) * 3 - this.buttonSpacing;
-    this.startX = (width - this.buttonsTotalWidth) / 2;
+    // this.buttonsTotalWidth =
+    //   (this.buttonWidth + this.buttonSpacing) * 3 - this.buttonSpacing;
+    // this.startX = (width - this.buttonsTotalWidth) / 2;
 
-    this.buttonBoosts.setPosition(
-      this.startX + this.buttonWidth / 2 - 200,
-      height - 310
-    );
-    this.buttonQuests.setPosition(
-      this.startX +
-        this.buttonWidth / 2 +
-        this.buttonWidth +
-        this.buttonSpacing -
-        200,
-      height - 310
-    );
-    this.buttonProfile.setPosition(
-      this.startX +
-        this.buttonWidth / 2 +
-        (this.buttonWidth + this.buttonSpacing) * 2 -
-        200,
-      height - 310
-    );
+    // this.buttonBoosts.setPosition(
+    //   this.startX + this.buttonWidth / 2 - 200,
+    //   height - 310
+    // );
+    // this.buttonQuests.setPosition(
+    //   this.startX +
+    //     this.buttonWidth / 2 +
+    //     this.buttonWidth +
+    //     this.buttonSpacing -
+    //     200,
+    //   height - 310
+    // );
+    // this.buttonProfile.setPosition(
+    //   this.startX +
+    //     this.buttonWidth / 2 +
+    //     (this.buttonWidth + this.buttonSpacing) * 2 -
+    //     200,
+    //   height - 310
+    // );
 
     // Добавление эффекта наведения и нажатия
-    this.buttonBoosts.on("pointerover", () =>
-      this.buttonBoosts.setTint(0x44ff44)
-    );
-    this.buttonBoosts.on("pointerout", () => this.buttonBoosts.clearTint());
-    this.buttonQuests.on("pointerover", () =>
-      this.buttonQuests.setTint(0x44ff44)
-    );
-    this.buttonQuests.on("pointerout", () => this.buttonQuests.clearTint());
-    this.buttonProfile.on("pointerover", () =>
-      this.buttonProfile.setTint(0x44ff44)
-    );
-    this.buttonProfile.on("pointerout", () => this.buttonProfile.clearTint());
+    // this.buttonBoosts.on("pointerover", () =>
+    //   this.buttonBoosts.setTint(0x44ff44)
+    // );
+    // this.buttonBoosts.on("pointerout", () => this.buttonBoosts.clearTint());
+    // this.buttonQuests.on("pointerover", () =>
+    //   this.buttonQuests.setTint(0x44ff44)
+    // );
+    // this.buttonQuests.on("pointerout", () => this.buttonQuests.clearTint());
+    // this.buttonProfile.on("pointerover", () =>
+    //   this.buttonProfile.setTint(0x44ff44)
+    // );
+    // this.buttonProfile.on("pointerout", () => this.buttonProfile.clearTint());
 
-    this.buttonBoosts.on("pointerdown", this.handleBoosts, this);
-    this.buttonQuests.on("pointerdown", this.handleQuests, this);
-    this.buttonProfile.on("pointerdown", this.handleProfile, this);
+    // this.buttonBoosts.on("pointerdown", this.handleBoosts, this);
+    // this.buttonQuests.on("pointerdown", this.handleQuests, this);
+    // this.buttonProfile.on("pointerdown", this.handleProfile, this);
 
     // Coins
     this.coinGroup = this.add.group({
@@ -212,9 +212,9 @@ class PlayScene extends Phaser.Scene {
     this.respawnTime = 0;
     this.gameSpeed = 10;
     this.gameOverContainer.setVisible(true);
-    this.buttonBoosts.setAlpha(1);
-    this.buttonQuests.setAlpha(1);
-    this.buttonProfile.setAlpha(1);
+    // this.buttonBoosts.setAlpha(1);
+    // this.buttonQuests.setAlpha(1);
+    // this.buttonProfile.setAlpha(1);
     this.score = 0;
   }
 
@@ -222,17 +222,17 @@ class PlayScene extends Phaser.Scene {
     coin.setActive(true).setVisible(true);
   }
 
-  handleBoosts() {
-    console.log("Boosts button clicked - Coming soon!");
-  }
+  // handleBoosts() {
+  //   console.log("Boosts button clicked - Coming soon!");
+  // }
 
-  handleQuests() {
-    console.log("Quests button clicked");
-  }
+  // handleQuests() {
+  //   console.log("Quests button clicked");
+  // }
 
-  handleProfile() {
-    console.log("Profile button clicked");
-  }
+  // handleProfile() {
+  //   console.log("Profile button clicked");
+  // }
 
   initColliders() {
     this.physics.add.collider(
@@ -275,9 +275,9 @@ class PlayScene extends Phaser.Scene {
               this.dino.setVelocity(0);
               this.scoreText.setAlpha(1);
               this.environment.setAlpha(1);
-              this.buttonBoosts.setAlpha(0);
-              this.buttonQuests.setAlpha(0);
-              this.buttonProfile.setAlpha(0);
+              // this.buttonBoosts.setAlpha(0);
+              // this.buttonQuests.setAlpha(0);
+              // this.buttonProfile.setAlpha(0);
               startEvent.remove();
             }
           },
@@ -356,9 +356,9 @@ class PlayScene extends Phaser.Scene {
     this.coinGroup.clear(true, true);
     this.isGameRunning = true;
     this.gameOverContainer.setVisible(false);
-    this.buttonBoosts.setAlpha(0);
-    this.buttonQuests.setAlpha(0);
-    this.buttonProfile.setAlpha(0);
+    // this.buttonBoosts.setAlpha(0);
+    // this.buttonQuests.setAlpha(0);
+    // this.buttonProfile.setAlpha(0);
     this.anims.resumeAll();
   };
 
