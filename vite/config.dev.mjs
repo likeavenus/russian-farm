@@ -1,17 +1,20 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from "vite";
+import basicSsl from "@vitejs/plugin-basic-ssl";
 
 export default defineConfig({
-    base: './',
-    build: {
-        rollupOptions: {
-            output: {
-                manualChunks: {
-                    phaser: ['phaser']
-                }
-            }
+  base: "./",
+  build: {
+    outDir: "./docs",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          phaser: ["phaser"],
         },
+      },
     },
-    server: {
-        port: 8080
-    }
+  },
+  server: {
+    port: 8080,
+  },
+  plugins: [basicSsl()],
 });
