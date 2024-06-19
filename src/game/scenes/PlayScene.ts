@@ -375,6 +375,10 @@ class PlayScene extends Phaser.Scene {
     initEmitter = () => {
         // on restart event
         EventBus.on(GAME_EVENTS.RESTART, this.restart);
+
+        EventBus.on(GAME_EVENTS.PAUSE, () => {
+            this.scene.pause();
+        });
     };
 
     handleInputs = () => {
@@ -488,3 +492,4 @@ class PlayScene extends Phaser.Scene {
 }
 
 export default PlayScene;
+

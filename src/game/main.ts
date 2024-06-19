@@ -28,7 +28,8 @@ const config: Phaser.Types.Core.GameConfig = {
             debug: false,
         },
     },
-    scene: [PreloadScene, Menu, PlayScene],
+    // scene: [PreloadScene, Menu, PlayScene],
+    scene: [PreloadScene, PlayScene],
 };
 
 const StartGame = (parent: string) => {
@@ -36,3 +37,4 @@ const StartGame = (parent: string) => {
 };
 
 export default StartGame;
+

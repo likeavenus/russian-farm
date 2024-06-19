@@ -1,6 +1,45 @@
 import { useRef, useState } from "react";
 import { IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
 import { MainMenu } from "./game/scenes/MainMenu";
+import { UIContainerBottom } from "./containers/UIContainer/UIContainerBottom";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Boosts } from "./modules/Boosts";
+import { Friends } from "./modules/Friends";
+import { Earn } from "./modules/Earn";
+
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <UIContainerBottom />,
+    },
+    {
+        path: "/boosts",
+        element: (
+            <>
+                <Boosts />
+                <UIContainerBottom />
+            </>
+        ),
+    },
+    {
+        path: "/friends",
+        element: (
+            <>
+                <Friends />
+                <UIContainerBottom />
+            </>
+        ),
+    },
+    {
+        path: "/earn",
+        element: (
+            <>
+                <Earn />
+                <UIContainerBottom />
+            </>
+        ),
+    },
+]);
 
 function App() {
     // The sprite can only be moved in the MainMenu Scene
@@ -67,6 +106,8 @@ function App() {
     return (
         <div id="app">
             <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
+            <RouterProvider router={router} />
+
             {/* <div>
                 <div>
                     <button className="button" onClick={addSprite}>
@@ -79,3 +120,4 @@ function App() {
 }
 
 export default App;
+
