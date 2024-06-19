@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { GAME_EVENTS, DEPTH_MAP } from "../constants";
+import { EventBus } from "../EventBus";
 
 export class GameOverContainer extends Phaser.GameObjects.Container {
     constructor(scene, x, y, children) {
@@ -18,6 +19,6 @@ export class GameOverContainer extends Phaser.GameObjects.Container {
     }
 
     emitRestart = () => {
-        this.scene.events.emit(GAME_EVENTS.RESTART);
+        EventBus.emit(GAME_EVENTS.RESTART);
     };
 }

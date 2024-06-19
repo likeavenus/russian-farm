@@ -173,7 +173,7 @@ class PlayScene extends Phaser.Scene {
             callback: () => this.addCoin(),
         });
 
-        EventBus.emit("current-scene-ready", this);
+        EventBus.emit(GAME_EVENTS.CURRENT_SCENE_READY, this);
     }
 
     destroyCoin = (coin) => {
@@ -374,7 +374,7 @@ class PlayScene extends Phaser.Scene {
 
     initEmitter = () => {
         // on restart event
-        this.events.on(GAME_EVENTS.RESTART, this.restart);
+        EventBus.on(GAME_EVENTS.RESTART, this.restart);
     };
 
     handleInputs = () => {
