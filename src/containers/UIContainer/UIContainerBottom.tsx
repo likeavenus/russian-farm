@@ -1,5 +1,6 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import cn from "classnames";
 import { Button } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
@@ -10,6 +11,7 @@ import { GAME_EVENTS } from "../../game/constants";
 
 export const UIContainerBottom: React.FC = () => {
     const navigate = useNavigate();
+    const [isMenuOpen, setOpenMenu] = useState(true);
 
     const pauseGame = () => {
         EventBus.emit(GAME_EVENTS.PAUSE);
@@ -33,9 +35,60 @@ export const UIContainerBottom: React.FC = () => {
         navigate("/earn");
     };
 
+    const onStart = () => {
+        setOpenMenu(false);
+    };
+
+    const openMenu = () => {
+        setOpenMenu(true);
+    };
+
+    const onOpenMain = () => {
+        console.log("onOpenMain!");
+
+        setOpenMenu(true);
+    };
+
+    const onGameOver = () => {
+        navigate("/main");
+    };
+
+    useEffect(() => {
+        EventBus.on(GAME_EVENTS.START_GAME, onStart);
+
+        return () => {
+            EventBus.removeListener(GAME_EVENTS.START_GAME, onStart);
+        };
+    }, []);
+
+    // useEffect(() => {
+    //     EventBus.on(GAME_EVENTS.GAME_OVER, onGameOver);
+
+    //     return () => EventBus.off(GAME_EVENTS.GAME_OVER, onGameOver);
+    // }, []);
+
+    // useEffect(() => {
+    //     EventBus.on(GAME_EVENTS.OPEN_MENU, openMenu);
+
+    //     return () => EventBus.off(GAME_EVENTS.OPEN_MENU, openMenu);
+    // }, []);
+
+    useEffect(() => {
+        EventBus.on(GAME_EVENTS.OPEN_MAIN, onOpenMain);
+
+        return () => {
+            EventBus.removeListener(GAME_EVENTS.OPEN_MAIN, onOpenMain);
+        };
+    }, []);
+
     return (
-        <div id="ui-bottom" className="container">
-            <div className="buttons-box">
+        <div
+            id="ui-bottom"
+            className={cn("container", {
+                active: isMenuOpen,
+            })}
+        >
+            <div className={cn("buttons-box")}>
                 <Button
                     color="primary"
                     size="medium"
@@ -46,7 +99,7 @@ export const UIContainerBottom: React.FC = () => {
                 </Button>
                 <Button
                     color="primary"
-                    size="large"
+                    size="medium"
                     onClick={getFriends}
                     startIcon={<GroupAddIcon />}
                 >

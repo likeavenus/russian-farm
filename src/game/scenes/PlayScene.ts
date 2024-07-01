@@ -7,16 +7,20 @@ import { EventBus } from "../EventBus";
 class PlayScene extends Phaser.Scene {
     gameOverContainer;
     eventEmitter;
+    dino!: Phaser.Physics.Arcade.Sprite;
+    isDinoBendDown: boolean = false;
+    isGameOver: boolean = false;
+    isGameRunning: boolean = false;
 
     constructor() {
         super("PlayScene");
     }
 
     create() {
-        this.initEmitter();
-
         this.isGameRunning = false;
+        this.isGameOver = false;
         this.gameSpeed = 10;
+        // this.gameSpeed = 2;
         this.respawnTime = 0;
         this.score = 0;
         this.totalCoins = 0;
@@ -37,7 +41,7 @@ class PlayScene extends Phaser.Scene {
         const { width, height } = this.scale;
 
         this.startTrigger = this.physics.add
-            .sprite(0, 10)
+            .sprite(0, 60)
             .setOrigin(0, 1)
             .setImmovable();
         this.ground = this.add
@@ -45,10 +49,12 @@ class PlayScene extends Phaser.Scene {
             .setOrigin(0, 1);
         this.dino = this.physics.add
             .sprite(0, height, "dino-idle")
-            .setOrigin(0, 1)
             .setDepth(10)
             .setCollideWorldBounds(true)
-            .setGravityY(5000); //Скорость падения
+            .setGravityY(5000)
+            .setScale(0.5);
+
+        console.log(this.dino);
 
         this.scoreText = this.add
             .text(width, 0, "00000", {
@@ -98,6 +104,8 @@ class PlayScene extends Phaser.Scene {
         this.handleInputs();
         this.initStartTrigger();
         this.handleScore();
+
+        this.input.on("pointerdown", this.dinoStart);
 
         // Buttons
         // TODO: вынести кнопки в контейнер и сделать по аналогии с gameOverContainer
@@ -173,6 +181,8 @@ class PlayScene extends Phaser.Scene {
             callback: () => this.addCoin(),
         });
 
+        this.initEmitter();
+
         EventBus.emit(GAME_EVENTS.CURRENT_SCENE_READY, this);
     }
 
@@ -199,6 +209,8 @@ class PlayScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.isGameOver = true;
+
         this.highScoreText.x = this.scoreText.x - this.scoreText.width - 20;
 
         const highScore = this.highScoreText.text.substring(
@@ -211,18 +223,21 @@ class PlayScene extends Phaser.Scene {
 
         this.highScoreText.setText(`High Score: ${newScore}`);
         this.highScoreText.setAlpha(1);
+        this.dino.setTexture("dino-hurt");
 
         this.physics.pause();
+
         this.isGameRunning = false;
         this.anims.pauseAll();
-        this.dino.setTexture("dino-hurt");
         this.respawnTime = 0;
-        this.gameSpeed = 10;
-        this.gameOverContainer.setVisible(true);
+        this.gameSpeed = 2;
+        // this.gameOverContainer.setVisible(true);
         // this.buttonBoosts.setAlpha(1);
         // this.buttonQuests.setAlpha(1);
         // this.buttonProfile.setAlpha(1);
         this.score = 0;
+
+        EventBus.emit(GAME_EVENTS.GAME_OVER);
     }
 
     activateCoin(coin) {
@@ -251,51 +266,65 @@ class PlayScene extends Phaser.Scene {
         );
     }
 
-    initStartTrigger() {
+    onOverLap = () => {
         const { width, height } = this.game.config;
+
+        if (this.startTrigger.y === 60) {
+            this.startTrigger.body.reset(0, height);
+            return;
+        }
+
+        this.startTrigger.disableBody(true, true);
+
+        const startEvent = this.time.addEvent({
+            delay: 1000 / 60,
+            loop: true,
+            callbackScope: this,
+            callback: () => {
+                this.dino.setVelocityX(80);
+                this.dino.anims.play("dino-run", 1);
+
+                if (this.ground.width < width) {
+                    this.ground.width += 17 * 2;
+                }
+
+                if (this.ground.width >= width) {
+                    this.ground.width = width;
+
+                    this.isGameRunning = true;
+
+                    // this.dinoStart();
+
+                    this.dino.setVelocity(0);
+                    this.scoreText.setAlpha(1);
+                    this.environment.setAlpha(1);
+                    // this.buttonBoosts.setAlpha(0);
+                    // this.buttonQuests.setAlpha(0);
+                    // this.buttonProfile.setAlpha(0);
+                    startEvent.remove();
+                }
+            },
+        });
+    };
+
+    initStartTrigger() {
         this.physics.add.overlap(
             this.startTrigger,
             this.dino,
-            () => {
-                if (this.startTrigger.y === 10) {
-                    this.startTrigger.body.reset(0, height);
-                    return;
-                }
-
-                this.startTrigger.disableBody(true, true);
-
-                const startEvent = this.time.addEvent({
-                    delay: 1000 / 60,
-                    loop: true,
-                    callbackScope: this,
-                    callback: () => {
-                        this.dino.setVelocityX(80);
-                        this.dino.anims.play("dino-run", 1);
-
-                        if (this.ground.width < width) {
-                            this.ground.width += 17 * 2;
-                        }
-
-                        if (this.ground.width >= width) {
-                            this.ground.width = width;
-                            this.isGameRunning = true;
-                            this.dino.setVelocity(0);
-                            this.scoreText.setAlpha(1);
-                            this.environment.setAlpha(1);
-                            // this.buttonBoosts.setAlpha(0);
-                            // this.buttonQuests.setAlpha(0);
-                            // this.buttonProfile.setAlpha(0);
-                            startEvent.remove();
-                        }
-                    },
-                });
-            },
+            this.onOverLap,
             null,
             this
         );
     }
 
     initAnim() {
+        if (this.anims.exists("dino-run")) {
+            this.anims.remove("dino-run");
+            this.anims.remove("dino-down-anim");
+            this.anims.remove("enemy-dino-fly");
+            this.anims.remove("coin");
+        }
+
         this.anims.create({
             key: "dino-run",
             frames: this.anims.generateFrameNumbers("dino", {
@@ -349,7 +378,7 @@ class PlayScene extends Phaser.Scene {
                 }
 
                 this.score++;
-                this.gameSpeed += 0.01;
+                this.gameSpeed += 0.005;
 
                 const score = this.score.toString();
                 this.scoreText.setText(score.padStart(5, "0"));
@@ -358,9 +387,11 @@ class PlayScene extends Phaser.Scene {
     }
 
     restart = () => {
+        /** NEW LOGIC */
+        /** OLD LOGIC */
         this.dino.setVelocityY(0);
-        this.dino.body.height = 92;
-        this.dino.body.offset.y = 0;
+        // this.dino.body.height = 92;
+        // this.dino.body.offset.y = 0;
         this.physics.resume();
         this.obsticles.clear(true, true);
         this.coinGroup.clear(true, true);
@@ -372,41 +403,123 @@ class PlayScene extends Phaser.Scene {
         this.anims.resumeAll();
     };
 
-    initEmitter = () => {
-        // on restart event
-        EventBus.on(GAME_EVENTS.RESTART, this.restart);
+    pauseScene = () => {
+        this.scene.pause();
+    };
 
-        EventBus.on(GAME_EVENTS.PAUSE, () => {
-            this.scene.pause();
+    resumeScene = () => {
+        this.scene.resume();
+    };
+
+    onOpenMenu = () => {
+        console.log("onOpenMenu");
+
+        this.removeEvents();
+
+        this.scene.restart({});
+    };
+
+    onRestart = () => {
+        this.onOpenMenu();
+    };
+
+    initEmitter = () => {
+        // EventBus.on(GAME_EVENTS.RESTART, this.onRestart);
+
+        EventBus.on(GAME_EVENTS.PAUSE, this.pauseScene);
+
+        EventBus.on(GAME_EVENTS.RESUME, this.resumeScene);
+
+        EventBus.on(GAME_EVENTS.OPEN_MAIN, this.onOpenMenu);
+
+        EventBus.on(GAME_EVENTS.DINO_JUMP, this.dinoJump);
+
+        EventBus.on(GAME_EVENTS.DINO_BEND_DOWN, this.dinoBendDown);
+
+        // EventBus.on(GAME_EVENTS.GAME_OVER, this.gameOver);
+    };
+
+    removeEvents = () => {
+        EventBus.removeListener(GAME_EVENTS.RESTART, this.restart);
+
+        EventBus.removeListener(GAME_EVENTS.PAUSE, this.pauseScene);
+
+        EventBus.removeListener(GAME_EVENTS.RESUME, this.resumeScene);
+
+        EventBus.removeListener(GAME_EVENTS.OPEN_MENU, this.onOpenMenu);
+
+        EventBus.removeListener(GAME_EVENTS.OPEN_MAIN, this.onOpenMenu);
+
+        // this.input.keyboard.off("keydown-SPACE", this.dinoJump);
+        // this.input.keyboard.off("keydown-SPACE", this.dinoStart);
+    };
+
+    dinoJump = () => {
+        if (!this.dino.body.onFloor()) {
+            return;
+        }
+
+        // this.dino.body.height = 92;
+        // this.dino.body.offset.y = 0;
+        this.dino.setVelocityY(-1600);
+    };
+
+    dinoBendDown = () => {
+        const startHeight = this.dino.body!.height;
+        const startOffsetY = this.dino.body!.offset.y;
+
+        this.dino.setSize(135, 44);
+        this.dino.setOffset(0.5, 50);
+
+        this.isDinoBendDown = true;
+
+        // this.dino.setOffset(this.dino.body?.offset.x, 10);
+
+        // this.dino.body!.height = 32;
+        // this.dino.body!.offset.y = 0;
+        // this.dino.anims.play("dino-down-anim");
+        // this.dino.
+
+        this.time.delayedCall(1000, () => {
+            // this.dino.body!.height = startHeight;
+            // this.dino.body!.offset.y = startOffsetY;
+            // this.dino.setSize(88, 92);
+            this.dino.setSize(100, 100, true);
+
+            // this.dino.setPosition(this.dino.x, this.dino.y - 10);
+            // this.dino.setOffset(this.dino.body?.offset.x, startOffsetY);
+
+            console.log("Up after bend down");
+            this.isDinoBendDown = false;
         });
     };
 
+    dinoStart = () => {
+        console.log(this.scene.isPaused());
+
+        if (this.scene.isPaused()) {
+            this.scene.resume();
+        }
+        EventBus.emit(GAME_EVENTS.START_GAME);
+    };
+
     handleInputs = () => {
-        this.input.keyboard.on("keydown-SPACE", () => {
-            if (!this.dino.body.onFloor()) {
-                return;
-            }
-
-            this.dino.body.height = 92;
-            this.dino.body.offset.y = 0;
-            this.dino.setVelocityY(-1600);
-        });
-
-        this.input.keyboard.on("keydown-DOWN", () => {
-            if (!this.dino.body.onFloor() || !this.isGameRunning) {
-                return;
-            }
-            this.dino.body.height = 58;
-            this.dino.body.offset.y = 34;
-        });
-
-        this.input.keyboard.on("keyup-DOWN", () => {
-            if (!this.dino.body.onFloor()) {
-                return;
-            }
-            this.dino.body.height = 92;
-            this.dino.body.offset.y = 0;
-        });
+        // this.input.keyboard?.once("keydown-SPACE", this.dinoStart);
+        // this.input.keyboard.on("keydown-SPACE", this.dinoJump);
+        // this.input.keyboard.on("keydown-DOWN", () => {
+        //     if (!this.dino.body.onFloor() || !this.isGameRunning) {
+        //         return;
+        //     }
+        //     // this.dino.body.height = 58;
+        //     // this.dino.body.offset.y = 34;
+        // });
+        // this.input.keyboard.on("keyup-DOWN", () => {
+        //     if (!this.dino.body.onFloor()) {
+        //         return;
+        //     }
+        //     // this.dino.body.height = 92;
+        //     // this.dino.body.offset.y = 0;
+        // });
     };
 
     placeObsticle() {
@@ -440,7 +553,20 @@ class PlayScene extends Phaser.Scene {
     }
 
     update(time, delta) {
+        // if (Math.random() > 0.95) {
+        //     console.log("update: ", this.isGameRunning);
+        // }
+        if (this.isGameOver) {
+            console.log("game over");
+
+            this.dino.setTexture("dino-hurt");
+            this.dino.anims.pause();
+        }
+
         if (!this.isGameRunning) return;
+
+        // this.scale.resize(window.innerWidth, window.innerHeight);
+
         this.ground.tilePositionX += this.gameSpeed;
 
         Phaser.Actions.IncX(this.obsticles.getChildren(), -this.gameSpeed);
@@ -472,12 +598,31 @@ class PlayScene extends Phaser.Scene {
         });
 
         if (this.dino.body.velocity.y !== 0) {
-            this.dino.anims.stop();
-            this.dino.setTexture("dino");
+            console.log("this.dino.body.velocity.y !== 0");
+
+            this.dino.anims.play("dino-run", true);
+            this.dino.anims.pause();
+            // this.dino.setTexture("dino");
         } else {
-            this.dino.body.height <= 58
-                ? this.dino.anims.play("dino-down-anim", true)
-                : this.dino.anims.play("dino-run", true);
+            if (this.isDinoBendDown) {
+                console.log("this.isDinoBendDown");
+
+                this.dino.anims.play("dino-down-anim", true);
+            } else if (this.isGameRunning && !this.isGameOver) {
+                console.log("this.isGameRunning && !this.isGameOver");
+
+                this.dino.anims.play("dino-run", true);
+            } else if (this.isGameOver) {
+                console.log("this.isGameOver");
+
+                this.dino.anims.pause();
+
+                this.dino.setTexture("dino-hurt");
+            }
+            // this.dino.anims.play("dino-run", true);
+            // this.dino.body.height < 45
+            //     ? this.dino.anims.play("dino-down-anim", true)
+            //     : this.dino.anims.play("dino-run", true);
         }
 
         this.coinText.setText(`coins: ${this.totalCoins}`);

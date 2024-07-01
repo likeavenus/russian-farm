@@ -3,7 +3,7 @@ import { GAME_EVENTS, DEPTH_MAP } from "../constants";
 import { EventBus } from "../EventBus";
 
 export class GameOverContainer extends Phaser.GameObjects.Container {
-    constructor(scene, x, y, children) {
+    constructor(scene: Phaser.Scene, x, y, children) {
         super(scene, x, y, children);
         this.gameOverText = scene.add.image(0, 0, "game-over");
         this.restart = scene.add.image(0, 80, "restart").setInteractive();
@@ -19,6 +19,8 @@ export class GameOverContainer extends Phaser.GameObjects.Container {
     }
 
     emitRestart = () => {
-        EventBus.emit(GAME_EVENTS.RESTART);
+        // EventBus.emit(GAME_EVENTS.RESTART);
+        EventBus.emit(GAME_EVENTS.OPEN_MAIN);
     };
 }
+

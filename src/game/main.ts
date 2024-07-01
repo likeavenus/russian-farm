@@ -19,13 +19,14 @@ const config: Phaser.Types.Core.GameConfig = {
             ? 600
             : 400,
     height: 340,
+    // height: 440,
     pixelArt: true,
     transparent: true,
     parent: "game-container",
     physics: {
         default: "arcade",
         arcade: {
-            debug: false,
+            debug: true,
         },
     },
     // scene: [PreloadScene, Menu, PlayScene],

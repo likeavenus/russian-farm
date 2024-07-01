@@ -38,6 +38,8 @@ export const PhaserGame = forwardRef<IRefPhaserGame, IProps>(
         }, [ref]);
 
         useEffect(() => {
+            console.log("useEffect");
+
             EventBus.on(
                 GAME_EVENTS.CURRENT_SCENE_READY,
                 (scene_instance: Phaser.Scene) => {
@@ -66,3 +68,4 @@ export const PhaserGame = forwardRef<IRefPhaserGame, IProps>(
         return <div id="game-container"></div>;
     }
 );
+
