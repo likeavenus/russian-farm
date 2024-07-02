@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Button, IconButton } from "@mui/material";
 import cn from "classnames";
-import RestartImg from "../../../public/assets/game/restart.png";
-import GameOverImg from "../../../public/assets/game/game-over.png";
+import RestartImg from "/assets/game/restart.png";
+import GameOverImg from "/assets/game/game-over.png";
 
 import PauseIcon from "@mui/icons-material/Pause";
 import HomeIcon from "@mui/icons-material/Home";
@@ -36,11 +36,11 @@ export const GameUI: React.FC = () => {
     };
 
     const goToMain = () => {
-        EventBus.emit(GAME_EVENTS.OPEN_MAIN);
         setPauseMenu(false);
         setStart(false);
         setGameOver(false);
         // navigate("/main");
+        EventBus.emit(GAME_EVENTS.OPEN_MAIN);
         navigate("/");
     };
 

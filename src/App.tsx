@@ -2,8 +2,15 @@ import { useRef, useState } from "react";
 import { IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
 import { MainMenu } from "./game/scenes/MainMenu";
 import cn from "classnames";
-import { UIContainerBottom } from "./containers/UIContainer";
-import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
+import { MainContainer, UIContainerBottom } from "./containers/UIContainer";
+import {
+    RouterProvider,
+    createBrowserRouter,
+    Outlet,
+    BrowserRouter,
+    Route,
+    Routes,
+} from "react-router-dom";
 import { Boosts } from "./modules/Boosts";
 import { Friends } from "./modules/Friends";
 import { Earn } from "./modules/Earn";
@@ -12,28 +19,17 @@ import { GameUI } from "./containers/UIContainer";
 const router = createBrowserRouter([
     {
         path: "/",
-        element: (
-            <>
-                <GameUI />
-                <UIContainerBottom />
-            </>
-        ),
+        element: <MainContainer />,
     },
     {
         path: "/main",
-        element: (
-            <>
-                <GameUI />
-                <UIContainerBottom />
-            </>
-        ),
+        element: <></>,
     },
     {
         path: "/boosts",
         element: (
             <>
                 <Boosts />
-                <UIContainerBottom />
             </>
         ),
     },
@@ -42,7 +38,6 @@ const router = createBrowserRouter([
         element: (
             <>
                 <Friends />
-                <UIContainerBottom />
             </>
         ),
     },
@@ -51,7 +46,6 @@ const router = createBrowserRouter([
         element: (
             <>
                 <Earn />
-                <UIContainerBottom />
             </>
         ),
     },
@@ -119,10 +113,25 @@ function App() {
         // setCanMoveSprite(scene.scene.key !== "MainMenu");
     };
 
+    console.log("App Ref", phaserRef.current);
+
     return (
         <div id="app" className={cn("app")}>
             <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
-            <RouterProvider router={router} />
+            {/* <RouterProvider router={router} /> */}
+
+            <BrowserRouter>
+                <Routes>
+                    <Route
+                        path="/"
+                        element={<MainContainer phaserRef={phaserRef} />}
+                    >
+                        <Route path="boosts" element={<Boosts />} />
+                        <Route path="friends" element={<Friends />} />
+                        <Route path="earn" element={<Earn />} />
+                    </Route>
+                </Routes>
+            </BrowserRouter>
 
             {/* <div>
                 <div>

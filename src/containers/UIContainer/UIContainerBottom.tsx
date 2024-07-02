@@ -44,8 +44,6 @@ export const UIContainerBottom: React.FC = () => {
     };
 
     const onOpenMain = () => {
-        console.log("onOpenMain!");
-
         setOpenMenu(true);
     };
 

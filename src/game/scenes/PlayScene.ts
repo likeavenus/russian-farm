@@ -19,8 +19,8 @@ class PlayScene extends Phaser.Scene {
     create() {
         this.isGameRunning = false;
         this.isGameOver = false;
-        this.gameSpeed = 10;
-        // this.gameSpeed = 2;
+        // this.gameSpeed = 10;
+        this.gameSpeed = 2;
         this.respawnTime = 0;
         this.score = 0;
         this.totalCoins = 0;
@@ -404,7 +404,9 @@ class PlayScene extends Phaser.Scene {
     };
 
     pauseScene = () => {
-        this.scene.pause();
+        if (!this.scene.isPaused()) {
+            this.scene.pause();
+        }
     };
 
     resumeScene = () => {
@@ -412,8 +414,6 @@ class PlayScene extends Phaser.Scene {
     };
 
     onOpenMenu = () => {
-        console.log("onOpenMenu");
-
         this.removeEvents();
 
         this.scene.restart({});
@@ -449,6 +449,10 @@ class PlayScene extends Phaser.Scene {
         EventBus.removeListener(GAME_EVENTS.OPEN_MENU, this.onOpenMenu);
 
         EventBus.removeListener(GAME_EVENTS.OPEN_MAIN, this.onOpenMenu);
+
+        EventBus.removeListener(GAME_EVENTS.DINO_JUMP, this.dinoJump);
+
+        EventBus.removeListener(GAME_EVENTS.DINO_BEND_DOWN, this.dinoBendDown);
 
         // this.input.keyboard.off("keydown-SPACE", this.dinoJump);
         // this.input.keyboard.off("keydown-SPACE", this.dinoStart);
@@ -489,13 +493,12 @@ class PlayScene extends Phaser.Scene {
             // this.dino.setPosition(this.dino.x, this.dino.y - 10);
             // this.dino.setOffset(this.dino.body?.offset.x, startOffsetY);
 
-            console.log("Up after bend down");
             this.isDinoBendDown = false;
         });
     };
 
     dinoStart = () => {
-        console.log(this.scene.isPaused());
+        console.log("dinoStart");
 
         if (this.scene.isPaused()) {
             this.scene.resume();
@@ -530,8 +533,8 @@ class PlayScene extends Phaser.Scene {
 
         let obsticle;
 
-        if (obsticleNum > 6) {
-            const enemyHeight = [22, 50];
+        if (obsticleNum > 1) {
+            const enemyHeight = [15, 20];
             obsticle = this.obsticles.create(
                 width + distance,
                 height - enemyHeight[Math.floor(Math.random() * 2)],
@@ -557,8 +560,6 @@ class PlayScene extends Phaser.Scene {
         //     console.log("update: ", this.isGameRunning);
         // }
         if (this.isGameOver) {
-            console.log("game over");
-
             this.dino.setTexture("dino-hurt");
             this.dino.anims.pause();
         }
@@ -598,23 +599,15 @@ class PlayScene extends Phaser.Scene {
         });
 
         if (this.dino.body.velocity.y !== 0) {
-            console.log("this.dino.body.velocity.y !== 0");
-
             this.dino.anims.play("dino-run", true);
             this.dino.anims.pause();
             // this.dino.setTexture("dino");
         } else {
             if (this.isDinoBendDown) {
-                console.log("this.isDinoBendDown");
-
                 this.dino.anims.play("dino-down-anim", true);
             } else if (this.isGameRunning && !this.isGameOver) {
-                console.log("this.isGameRunning && !this.isGameOver");
-
                 this.dino.anims.play("dino-run", true);
             } else if (this.isGameOver) {
-                console.log("this.isGameOver");
-
                 this.dino.anims.pause();
 
                 this.dino.setTexture("dino-hurt");
