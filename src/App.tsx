@@ -10,46 +10,47 @@ import {
     BrowserRouter,
     Route,
     Routes,
+    HashRouter,
 } from "react-router-dom";
 import { Boosts } from "./modules/Boosts";
 import { Friends } from "./modules/Friends";
 import { Earn } from "./modules/Earn";
 import { GameUI } from "./containers/UIContainer";
 
-const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <MainContainer />,
-    },
-    {
-        path: "/main",
-        element: <></>,
-    },
-    {
-        path: "/boosts",
-        element: (
-            <>
-                <Boosts />
-            </>
-        ),
-    },
-    {
-        path: "/friends",
-        element: (
-            <>
-                <Friends />
-            </>
-        ),
-    },
-    {
-        path: "/earn",
-        element: (
-            <>
-                <Earn />
-            </>
-        ),
-    },
-]);
+// const router = createBrowserRouter([
+//     {
+//         path: "/",
+//         element: <MainContainer />,
+//     },
+//     {
+//         path: "/main",
+//         element: <></>,
+//     },
+//     {
+//         path: "/boosts",
+//         element: (
+//             <>
+//                 <Boosts />
+//             </>
+//         ),
+//     },
+//     {
+//         path: "/friends",
+//         element: (
+//             <>
+//                 <Friends />
+//             </>
+//         ),
+//     },
+//     {
+//         path: "/earn",
+//         element: (
+//             <>
+//                 <Earn />
+//             </>
+//         ),
+//     },
+// ]);
 
 function App() {
     // The sprite can only be moved in the MainMenu Scene
@@ -120,7 +121,7 @@ function App() {
             <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
             {/* <RouterProvider router={router} /> */}
 
-            <BrowserRouter>
+            <HashRouter>
                 <Routes>
                     <Route
                         path="/"
@@ -131,7 +132,7 @@ function App() {
                         <Route path="earn" element={<Earn />} />
                     </Route>
                 </Routes>
-            </BrowserRouter>
+            </HashRouter>
 
             {/* <div>
                 <div>
