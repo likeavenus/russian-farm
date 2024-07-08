@@ -9,7 +9,9 @@ export const GAME_EVENTS = {
     OPEN_MENU: "OPEN_MENU",
     OPEN_MAIN: "OPEN_MAIN",
     DINO_JUMP: "DINO_JUMP",
+    DINO_STOP_JUMP: "DINO_STOP_JUMP",
     DINO_BEND_DOWN: "DINO_BEND_DOWN",
+    DINO_STOP_BEND_DOWN: "DINO_STOP_BEND_DOWN",
 };
 
 /** карта глубины */
@@ -17,4 +19,3 @@ export const DEPTH_MAP = {
     DINO: 10,
     MODAL: 20,
 };
-

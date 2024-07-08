@@ -68,7 +68,6 @@ export const MainContainer: React.FC = ({ phaserRef }) => {
 
     useEffect(() => {
         if (location.pathname === "/") {
-            console.log("run game", phaserRef);
             EventBus.emit(GAME_EVENTS.RESUME);
         }
     }, [location.pathname]);
@@ -92,10 +91,9 @@ export const MainContainer: React.FC = ({ phaserRef }) => {
                 ref={phaserRef}
                 currentActiveScene={currentScene}
             /> */}
-            <GameUI />
+            <GameUI phaserRef={phaserRef} />
             <UIContainerBottom />
             <Outlet />
         </>
     );
 };
-

@@ -4,13 +4,24 @@ import { GameOverContainer } from "../containers/GameOver";
 import { GAME_EVENTS } from "../constants";
 import { EventBus } from "../EventBus";
 
+let speedInc = 15;
+const JUMP_SPEED = 150;
+
 class PlayScene extends Phaser.Scene {
     gameOverContainer;
     eventEmitter;
     dino!: Phaser.Physics.Arcade.Sprite;
     isDinoBendDown: boolean = false;
-    isGameOver: boolean = false;
-    isGameRunning: boolean = false;
+    isGameOver = false;
+    isGameRunning = false;
+    isJumping = false;
+    isJumpButtonDown = false;
+    canJump = true;
+    jumpSpeed = JUMP_SPEED;
+    jumpCooldown = 1000;
+    jumpBufferCounter = 0;
+    jumpBufferFrames = 8;
+    timerId: Phaser.Time.TimerEvent;
 
     constructor() {
         super("PlayScene");
@@ -53,8 +64,6 @@ class PlayScene extends Phaser.Scene {
             .setCollideWorldBounds(true)
             .setGravityY(5000)
             .setScale(0.5);
-
-        console.log(this.dino);
 
         this.scoreText = this.add
             .text(width, 0, "00000", {
@@ -168,9 +177,7 @@ class PlayScene extends Phaser.Scene {
                 coin.setScale(0.2);
                 this.physics.add.existing(coin);
             },
-            removeCallback: function (coin) {
-                console.log("Removed", coin.name);
-            },
+            removeCallback: function (coin) {},
         });
 
         this.physics.add.collider(this.coinGroup, this.dino, this.destroyCoin);
@@ -432,7 +439,9 @@ class PlayScene extends Phaser.Scene {
 
         EventBus.on(GAME_EVENTS.OPEN_MAIN, this.onOpenMenu);
 
-        EventBus.on(GAME_EVENTS.DINO_JUMP, this.dinoJump);
+        EventBus.on(GAME_EVENTS.DINO_JUMP, this.onDinoJump);
+
+        EventBus.on(GAME_EVENTS.DINO_STOP_JUMP, this.onDinoBendDown);
 
         EventBus.on(GAME_EVENTS.DINO_BEND_DOWN, this.dinoBendDown);
 
@@ -450,22 +459,83 @@ class PlayScene extends Phaser.Scene {
 
         EventBus.removeListener(GAME_EVENTS.OPEN_MAIN, this.onOpenMenu);
 
-        EventBus.removeListener(GAME_EVENTS.DINO_JUMP, this.dinoJump);
+        EventBus.removeListener(GAME_EVENTS.DINO_JUMP, this.onDinoJump);
 
         EventBus.removeListener(GAME_EVENTS.DINO_BEND_DOWN, this.dinoBendDown);
 
-        // this.input.keyboard.off("keydown-SPACE", this.dinoJump);
+        // this.input.keyboard.off("keydown-SPACE", this.onPointerDown);
         // this.input.keyboard.off("keydown-SPACE", this.dinoStart);
     };
 
-    dinoJump = () => {
-        if (!this.dino.body.onFloor()) {
-            return;
+    // void Jump()
+    // {
+    //     if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
+    //     {
+    //         rb.velocity = new Vector2(rb.velocity.x, 0);
+    //         pState.jumping = false;
+    //     }
+    //     if (!pState.jumping)
+    //     {
+    //         if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
+    //         {
+    //             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+    //             pState.jumping = true;
+    //         }
+    //         else if (!Grounded() && airJumpCounter < maxAirJumps && Input.GetButtonDown("Jump"))
+    //         {
+    //             pState.jumping = true;
+    //             airJumpCounter++;
+    //             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+    //         }
+    //     }
+    //     anim.SetBool("Jumping", !Grounded());
+    // }
+
+    grounded(): boolean {
+        return this.dino.body.onFloor();
+    }
+
+    updateJumpVariables() {
+        if (this.grounded()) {
+            this.isJumping = false;
         }
 
-        // this.dino.body.height = 92;
-        // this.dino.body.offset.y = 0;
-        this.dino.setVelocityY(-1600);
+        if (this.isJumpButtonDown) {
+            this.jumpBufferCounter = this.jumpBufferFrames;
+        } else {
+            this.jumpBufferCounter--;
+        }
+    }
+
+    onDinoJump = () => {
+        if (this.timerId) {
+            this.timerId.destroy();
+        }
+
+        this.isJumping = true;
+        this.isJumpButtonDown = true;
+
+        this.timerId = this.time.addEvent({
+            delay: 500,
+            callback: () => {
+                this.canJump = true;
+            },
+        });
+    };
+
+    dinoJump = () => {
+        if (this.jumpBufferCounter > 0) {
+            this.jumpSpeed += 50;
+            this.dino.setVelocityY(-this.jumpSpeed);
+        }
+    };
+
+    onDinoBendDown = () => {
+        this.isJumpButtonDown = false;
+        this.jumpSpeed = 0;
+        this.dino.setVelocityY(this.jumpSpeed);
+        this.isJumping = false;
+        this.jumpSpeed = JUMP_SPEED;
     };
 
     dinoBendDown = () => {
@@ -498,8 +568,6 @@ class PlayScene extends Phaser.Scene {
     };
 
     dinoStart = () => {
-        console.log("dinoStart");
-
         if (this.scene.isPaused()) {
             this.scene.resume();
         }
@@ -508,7 +576,7 @@ class PlayScene extends Phaser.Scene {
 
     handleInputs = () => {
         // this.input.keyboard?.once("keydown-SPACE", this.dinoStart);
-        // this.input.keyboard.on("keydown-SPACE", this.dinoJump);
+        // this.input.keyboard.on("keydown-SPACE", this.onPointerDown);
         // this.input.keyboard.on("keydown-DOWN", () => {
         //     if (!this.dino.body.onFloor() || !this.isGameRunning) {
         //         return;
@@ -556,12 +624,15 @@ class PlayScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        // if (Math.random() > 0.95) {
-        //     console.log("update: ", this.isGameRunning);
-        // }
         if (this.isGameOver) {
             this.dino.setTexture("dino-hurt");
             this.dino.anims.pause();
+        }
+
+        if (!this.isGameOver) {
+            this.updateJumpVariables();
+
+            this.dinoJump();
         }
 
         if (!this.isGameRunning) return;
@@ -630,4 +701,3 @@ class PlayScene extends Phaser.Scene {
 }
 
 export default PlayScene;
-

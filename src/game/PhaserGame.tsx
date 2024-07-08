@@ -59,15 +59,10 @@ export const PhaserGame = forwardRef<IRefPhaserGame, IProps>(
                 }
             );
             return () => {
-                console.log("removeListener");
-
                 EventBus.removeListener(GAME_EVENTS.CURRENT_SCENE_READY);
             };
         }, [currentActiveScene, ref]);
 
-        console.log("game: ", game);
-
         return <div id="game-container"></div>;
     }
 );
-

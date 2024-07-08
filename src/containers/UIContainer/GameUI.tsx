@@ -18,6 +18,7 @@ export const GameUI: React.FC = () => {
     const [isPaused, setPauseMenu] = useState(false);
     const [isStarted, setStart] = useState(false);
     const [isGameOver, setGameOver] = useState(false);
+    const [isPointerDown, setPointerDown] = useState(false);
 
     const navigate = useNavigate();
 
@@ -51,8 +52,21 @@ export const GameUI: React.FC = () => {
         setPauseMenu(false);
     };
 
-    const dinoJump = () => {
-        EventBus.emit(GAME_EVENTS.DINO_JUMP);
+    const onPointerDown = () => {
+        console.log("onPointerDown");
+
+        if (!isPointerDown) {
+            EventBus.emit(GAME_EVENTS.DINO_JUMP);
+            return setPointerDown(true);
+        }
+
+        setPointerDown(true);
+    };
+
+    const onPointerUp = (e) => {
+        e.preventDefault();
+        EventBus.emit(GAME_EVENTS.DINO_STOP_JUMP);
+        setPointerDown(false);
     };
 
     const dinoBendDown = () => {
@@ -137,7 +151,13 @@ export const GameUI: React.FC = () => {
                     className={cn("play-btn")}
                     color="primary"
                     size="large"
-                    onClick={dinoJump}
+                    onPointerDown={onPointerDown}
+                    onPointerUp={onPointerUp}
+                    onContextMenu={(e) => {
+                        e.preventDefault();
+
+                        return false;
+                    }}
                 >
                     <KeyboardArrowUpIcon fontSize="large" />
                 </IconButton>
@@ -165,4 +185,3 @@ export const GameUI: React.FC = () => {
         </>
     );
 };
-
